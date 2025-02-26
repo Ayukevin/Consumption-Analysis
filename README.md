@@ -47,6 +47,28 @@ Some key points to note:
 CatBoost was used as the model for training, and hyperparameter tuning was performed using grid search.
 The final model was evaluated using Mean Absolute Percentage Error (MAPE), achieving a MAPE of 0.2.
 
+### 開源(Open source)
+---
+使用streamlit開源數據統計與機器學習預測結果
+若你想要將本專案在地端開發，請遵循以下步驟
+Use Streamlit to Open Source Data Statistics and Machine Learning Predictions  
+If you want to develop this project locally, please follow the steps below.
+1. 使用poetry將套件安裝完成並開啟虛擬環境
+```
+poetry env use python
+poetry shell
+poetry lock
+```
+2. 執行csv_2_sql.py將csv轉換成sql
+```
+python csv_2_sql.py
+```
+3. 將pyproject.toml轉換成requirements.txt
+```
+poetry export -f requirements.txt --output requirements.txt --without-hashes
+```
+4. 前往[streamlit](https://share.streamlit.io/)完成設定即可部屬
+
 ### 結論 Conclude
 這是我第一次將自己的訓練開源，我知道預測結果不盡理想
 我會繼續學習的
