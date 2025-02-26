@@ -180,4 +180,4 @@ st.plotly_chart(fig, use_container_width=True)
 
 # 📌 **尾段**
 st.markdown("---")
-st.markdown("📌 **專案開源於 GitHub，數據來源自政府資料開放平台，歡迎大家一起優化分析！**")
+st.markdown("📌 **專案開源於 [GitHub](https://github.com/Ayukevin/Consumption-Analysis)，數據來源自政府資料開放平台，歡迎大家一起優化分析！**")
