@@ -1,4 +1,7 @@
 # Consumption-Analysis
+
+[https://consumption-analysis-crmmf9lrucpzhr3kawflrd.streamlit.app/](url)
+
 [所得房價消費分析-鄉鎮市區電子發票B2C開立資料集](https://data.gov.tw/dataset/36862)是由政府資料開方平台所提供的資料集。由於對全台的B2C電子發票發票發布狀況感到好奇，進而想對此資料進行分析。原始資料集的時間從2021/01記錄到2024/12，本專案在機器學習訓練階段時只使用2021年的資料。
 
 The Income and Housing Price Consumption Analysis -B2C E-Invoice Dataset for Townships and Districts is provided by the Government Open Data Platform. Out of curiosity about the issuance of B2C e-invoices across Taiwan, I decided to analyze this dataset.The original dataset is from 2021/01 to 2024/12, but this model is trained by the data from 2021.
