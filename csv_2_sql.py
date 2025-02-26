@@ -19,3 +19,5 @@ print("successfully to transfer csv to  data.db")
 
 # 關閉連線
 conn.close()
+
+#python csv_2_sql.py

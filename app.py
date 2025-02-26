@@ -4,17 +4,18 @@ import plotly.express as px
 from catboost import CatBoostRegressor
 import sqlite3
 
-# 設定 Streamlit 頁面標題
+#streamlit run app.py
+
+#頁面標題
 st.set_page_config(page_title="台灣鄉鎮市區消費分析", layout="wide")
 
-# 📌 連接 SQLite DB
+#連接 SQLite DB：加速加載方式
 def load_data_sql(query="SELECT * FROM consumption"):
-    conn = sqlite3.connect("data.db")  # 連接 SQLite
-    df = pd.read_sql(query, conn)  # 執行 SQL 查詢
-    conn.close()  # 關閉連線
+    conn = sqlite3.connect("data.db")  
+    df = pd.read_sql(query, conn) 
+    conn.close() 
     return df
 
-# 📌 讀取全部數據（可篩選）
 df = load_data_sql()
 
 #讀取機器學習模型
@@ -26,10 +27,11 @@ def load_model():
 
 model = load_model()
 
-# 📌 3️⃣ 簡介與說明
 st.title("📊 台灣鄉鎮市區消費分析 - 以電子發票為例")
 st.markdown("""
-本專案使用政府開放數據 [所得房價消費分析-鄉鎮市區電子發票B2C開立資料集](https://data.gov.tw/dataset/36862) 進行台灣各鄉鎮市區消費狀況分析。  
+本專案使用政府開放數據 [所得房價消費分析-鄉鎮市區電子發票B2C開立資料集](https://data.gov.tw/dataset/36862) 進行台灣各鄉鎮市區消費狀況分析。
+            
+原始資料集中含2021-2024年資料，在此只取2021年的資料進行分析。  
 **我們將探討：**
             
 ✅ 各縣市的 **平均開立金額** 和 **平均客單價** 分布  
@@ -37,13 +39,13 @@ st.markdown("""
 ✅ 使用機器學習進行 消費金額預測，並分析其誤差與特徵重要性  
 """)
 
-# 📌 使用者選擇的篩選條件
+# 使用者選擇篩選side bar
 st.sidebar.header("📌 互動篩選條件")
 selected_city = st.sidebar.selectbox("選擇縣市", ["全部"] + sorted(df["縣市名稱"].unique()))
 selected_industry = st.sidebar.selectbox("選擇行業", ["全部"] + sorted(df["行業名稱"].unique()))
 selected_month = st.sidebar.slider("選擇月份", min_value=1, max_value=12, value=6)
 
-# 📌 根據篩選條件產生 SQL 查詢
+# 根據篩選條件產生 SQL 查詢
 query = "SELECT * FROM consumption WHERE 1=1"
 if selected_city != "全部":
     query += f" AND 縣市名稱 = '{selected_city}'"
@@ -51,10 +53,7 @@ if selected_industry != "全部":
     query += f" AND 行業名稱 = '{selected_industry}'"
 query += f" AND month = {selected_month}"
 
-# 📌 讀取 SQL
 filtered_df = load_data_sql(query)
-
-# 📌 顯示結果
 st.header("📊 **查詢結果(前五筆)**")
 st.write(filtered_df.head())
 
@@ -69,36 +68,32 @@ st.markdown("""
 """)
 
 
-#無法正常顯示資料點
-# 📌 5️⃣ 繪製全台消費地圖
+
+# 全台消費地圖
 st.header("📍 全台灣消費平均開立金額 (視覺化地圖)")
-# 確保經緯度欄位存在
 if "lat" in filtered_df.columns and "lng" in filtered_df.columns:
     # 移除 lat/lng 欄位中的 NaN 避免錯誤
     filtered_df = filtered_df.dropna(subset=["lat", "lng"])
     st.write(f"✅ 共有 {len(filtered_df)} 比資料點")
-
-    # 使用 Plotly 的 scatter_mapbox 繪製地圖    
-    fig = px.scatter_mapbox(filtered_df,
-        lat="lat",  # 指定緯度
-        lon="lng",  # 指定經度
-        size='平均客單價',  # 📌 假設所有點固定大小
-        color="平均開立金額",  # 顏色區分消費金額
+ 
+    fig = px.scatter_map(
+        filtered_df,
+        lat="lat", lon="lng",
+        size="平均開立金額",
+        color="平均開立金額",
         hover_name="鄉鎮市區名稱",
-        title="全台灣消費平均開立金額",
+        title="全台消費平均開立金額",
         color_continuous_scale="plasma",
-        zoom=7,  # 地圖的縮放程度
-        center={"lat": 23.5, "lon": 121},  # 設定地圖中心點在台灣
-        mapbox_style="carto-positron"  # 使用開放地圖（不需 Mapbox API）
+        zoom=7,
+        center={"lat": 23.5, "lon": 121},  #地圖中心對準台灣
     )
     
-    # 在 Streamlit 顯示地圖
     st.plotly_chart(fig, use_container_width=True)
 
 else:
-    st.error("❌ 無法顯示地圖，未偵測到經緯度座標（lat, lng）。")
+    st.error("無法顯示地圖，未偵測到經緯度座標（lat, lng）。")
 
-# 📌 6️⃣ 繪製各縣市的消費金額趨勢
+# 各縣市的消費金額趨勢
 st.header("📊 各縣市消費金額趨勢 (堆疊長條圖)")
 # 資料處理
 grouped = df.groupby(["縣市名稱", "month"])["平均開立金額"].sum().unstack()
@@ -114,22 +109,22 @@ fig = px.bar(grouped_melted, x="縣市名稱", y="平均開立金額", color="mo
              barmode="stack", color_continuous_scale="coolwarm")
 st.plotly_chart(fig)
 
-# 📌 7️⃣ 縣市與行業的熱力圖
+# 縣市與行業的熱力圖
 st.header("🔥 各縣市 & 行業的消費行為熱力圖")
 heatmap_data = df.groupby(["縣市名稱", "行業名稱"])["平均開立金額"].sum().unstack().fillna(0)
 fig = px.imshow(
     heatmap_data,  # 熱力圖數據
-    labels=dict(x="行業名稱", y="縣市名稱", color="平均開立金額"),  # 標籤
-    x=heatmap_data.columns,  # X 軸 (行業名稱)
-    y=heatmap_data.index,    # Y 軸 (縣市名稱)
-    color_continuous_scale="RdBu_r",  # 色彩風格 (紅藍對比)
+    labels=dict(x="行業名稱", y="縣市名稱", color="平均開立金額"),  
+    x=heatmap_data.columns,  # X 軸：行業名稱
+    y=heatmap_data.index,    # Y 軸：縣市名稱
+    color_continuous_scale="RdBu_r",  # 色彩：紅藍對比
     aspect="auto"  # 保持長寬比
 )
 
 st.plotly_chart(fig, use_container_width=True)
 
 
-# 📌 8️⃣ 預測分析
+#預測分析
 st.header("📈 機器學習預測分析")
 X = df.drop(columns=['平均開立金額', 'year','縣市代碼','縣市名稱','鄉鎮市區代碼','鄉鎮市區名稱','縣鄉鎮市區']) 
 y_true = df['平均開立金額'] 
@@ -142,7 +137,7 @@ st.markdown("""
 最後使用MAPE判斷訓練結果。訓練完成後 MAPE = 0.2
 """)
 
-# 📌 9️⃣ 預測 vs 實際繪圖
+# 預測 vs 實際繪圖
 st.subheader("📉 實際 vs 預測開立金額")
 comparison_df = pd.DataFrame({"實際值": y_true, "預測值": y_pred})
 
@@ -151,7 +146,7 @@ fig = px.scatter(comparison_df, x="實際值", y="預測值",
                   title="機器學習預測表現對比", labels={"實際值": "實際開立金額", "預測值": "預測開立金額"})
 st.plotly_chart(fig)
 
-# 📌 10️⃣ 各縣市預測與實際金額比較
+# 各縣市預測與實際金額比較
 st.header("🏙各縣市預測金額 vs 實際金額")
 city_comparison = df.groupby("縣市名稱").agg({"平均開立金額": "sum", "預測開立金額": "sum"}).reset_index()
 
@@ -167,7 +162,7 @@ fig = px.bar(
 st.plotly_chart(fig, use_container_width=True)
 
 
-# 📌 12️⃣ 各行業預測與實際金額比較
+# 各行業預測與實際金額比較
 st.header("🏢 各行業預測金額 vs 實際金額")
 industry_comparison = df.groupby("行業名稱").agg({"平均開立金額": "sum", "預測開立金額": "sum"}).reset_index()
 fig = px.bar(
