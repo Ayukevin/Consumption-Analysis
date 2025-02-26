@@ -21,3 +21,5 @@ print("successfully to transfer csv to  data.db")
 conn.close()
 
 #python csv_2_sql.py
+#自動轉換toml => requirements.txt
+#poetry export -f requirements.txt --output requirements.txt --without-hashes
