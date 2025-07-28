@@ -71,8 +71,3 @@ python csv_2_sql.py
 poetry export -f requirements.txt --output requirements.txt --without-hashes
 ```
 4. 前往[streamlit](https://share.streamlit.io/)完成設定即可部屬
-
-### 結論 Conclude
-這是我第一次將自己的訓練開源，我知道預測結果不盡理想
-我會繼續學習的
-This is my first time open-sourcing my training process. I know the prediction results are not perfect, but I will keep learning and improving!
